@@ -167,7 +167,7 @@ class Reports():
     def login(self, password):
         if self._password == password:
             resp = make_response('yes')
-            resp.set_cookie('password', password)
+            resp.set_cookie('password', password, secure=True, httponly=True, samesite='Lax')
             return resp
         return make_response("no")
 
