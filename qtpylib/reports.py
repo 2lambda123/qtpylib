@@ -50,6 +50,17 @@ if sys.version_info < (3, 4):
 
 class datetimeJSONEncoder(JSONEncoder):
     def default(self, obj):
+        """Function:
+        Converts datetime objects to integers for JSON encoding.
+        Parameters:
+            - obj (object): Object to be encoded.
+        Returns:
+            - int: Integer representation of datetime object.
+        Processing Logic:
+            - Checks if object is a datetime, date, or time.
+            - If so, converts to integer using timetime().
+            - Otherwise, uses default JSONEncoder method."""
+        
         if isinstance(obj, datetime.datetime) | \
                 isinstance(obj, datetime.date) | \
                 isinstance(obj, datetime.time):
@@ -63,6 +74,17 @@ app.json_encoder = datetimeJSONEncoder
 
 @app.template_filter('strftime')
 def _jinja2_strftime(date, fmt='%Y-%m-%d %H:%M:%S%z'):
+    """Converts a given date into a string format using the specified format.
+    Parameters:
+        - date (str or datetime): Date to be converted into a string.
+        - fmt (str): Format in which the date should be converted. Defaults to '%Y-%m-%d %H:%M:%S%z'.
+    Returns:
+        - str: Date converted into a string format using the specified format.
+    Processing Logic:
+        - Parses the given date if it is a string.
+        - Removes the timezone information from the date.
+        - Converts the date into a string using the specified format."""
+    
     try:
         date = parse_date(date)
     except Exception as e:
@@ -96,6 +118,8 @@ class Reports():
     # ---------------------------------------
     def __init__(self, blotter=None, port=5000,
                  host="0.0.0.0", password=None, **kwargs):
+        """"""
+        
         # return
         self._password = password if password is not None else hashlib.sha1(
             str(datetime.datetime.now()).encode()).hexdigest()[:6]
@@ -161,10 +185,14 @@ class Reports():
 
     # ---------------------------------------
     def send_static(self, url_path):
+        """"""
+        
         return send_from_directory('_webapp/', url_path)
 
     # ---------------------------------------
     def login(self, password):
+        """"""
+        
         if self._password == password:
             resp = make_response('yes')
             resp.set_cookie('password', password, secure=True, httponly=True, samesite='Lax')
@@ -173,6 +201,8 @@ class Reports():
 
     # ---------------------------------------
     def algos(self, json=True):
+        """"""
+        
         algos = pd.read_sql("SELECT DISTINCT algo FROM trades",
                             self.dbconn).to_dict(orient="records")
         if json:
@@ -181,6 +211,8 @@ class Reports():
 
     # ---------------------------------------
     def symbols(self, json=True):
+        """"""
+        
         symbols = pd.read_sql("SELECT * FROM symbols",
                               self.dbconn).to_dict(orient="records")
         if json:
@@ -189,6 +221,8 @@ class Reports():
 
     # ---------------------------------------
     def trades(self, start=None, end=None, algo_id=None, json=True):
+        """"""
+        
 
         if algo_id is not None:
             algo_id = algo_id.replace('/', '')
@@ -235,6 +269,8 @@ class Reports():
 
     # ---------------------------------------
     def positions(self, algo_id=None, json=True):
+        """"""
+        
 
         if algo_id is not None:
             algo_id = algo_id.replace('/', '')
@@ -274,11 +310,15 @@ class Reports():
 
     # ---------------------------------------
     def trades_by_algo(self, algo_id=None, start=None, end=None):
+        """"""
+        
         trades = self.trades(start, end, algo_id=algo_id, json=False)
         return jsonify(trades)
 
     # ---------------------------------------
     def bars(self, resolution, symbol, start=None, end=None, json=True):
+        """"""
+        
 
         if start is not None:
             start = start.replace('/', '')
@@ -304,6 +344,8 @@ class Reports():
 
     # ---------------------------------------
     def index(self, start=None, end=None):
+        """"""
+        
         if 'nopass' not in self.args:
             if self._password != "" and self._password != request.cookies.get('password'):
                 return render_template('login.html')
